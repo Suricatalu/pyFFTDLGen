@@ -1,15 +1,4 @@
-IO_SENSOR_DATA = 5
-
-SENSOR_RANGE_ACC_G = 4      # unit: g
-SENSOR_RANGE_ACC_MS = 5     # unit: m/s^2
-
-FFT_X_IDX = 1
-FFT_Y_IDX = 2
-FFT_Z_IDX = 4
-
-DATA_IDX_LOGIDX_UTC = 11
-DATA_IDX_LOGIDX_UTC_LEN = 9
-
+import DownlinkGenHdr as DWHDR
 
 def __crc8(data: bytes, initial_value: int = 0xFF) -> bytes:
     crc = initial_value
@@ -30,12 +19,12 @@ def genFFTDL_logIdx_utc(fcnt: int, log_index: int, timestamp: int, isX: bool = T
 
     log_index = log_index if log_index != 0 else 4294967295
     content = b''.join([
-        (IO_SENSOR_DATA << 4 | SENSOR_RANGE_ACC_G).to_bytes(1),
-        (FFT_X_IDX << 5 | FFT_Y_IDX << 5 | FFT_Z_IDX << 5).to_bytes(1),
-        (DATA_IDX_LOGIDX_UTC_LEN).to_bytes(1),
-        (DATA_IDX_LOGIDX_UTC).to_bytes(1),
-        log_index.to_bytes(4, 'little'),
-        timestamp.to_bytes(4, 'little')
+        (DWHDR.IO_SENSOR_DATA << 4 | DWHDR.SENSOR_RANGE_ACC_G).to_bytes(1),
+        (DWHDR.FFT_X_IDX << 5 | DWHDR.FFT_Y_IDX << 5 | DWHDR.FFT_Z_IDX << 5).to_bytes(1),
+        (DWHDR.DATA_IDX_LOGIDX_UTC_LEN).to_bytes(1),
+        (DWHDR.DATA_IDX_LOGIDX_UTC).to_bytes(1),
+        log_index.to_bytes(DWHDR.PARA_LOGIDX_SIZE, 'little'),
+        timestamp.to_bytes(DWHDR.PARA_TIME_SIZE, 'little')
     ])
 
     crc = __crc8(content)
@@ -49,4 +38,4 @@ if __name__ == "__main__":
     timestamp = 1729841700
     print(genFFTDL_logIdx_utc(seq, log_index, timestamp))
 
-# 80000C54E0090BFFFFFFFF641F06678D
+# Output: 80000c54e0090b37000000244a1b6765
